@@ -71,9 +71,9 @@ jobs:
       #Download the publish files created in previous job
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
-         with:
-        name: .net-app
-        path: .net-app
+        with:
+          name: .net-app
+          path: .net-app
       # Login in your Azure subscription using a service principal (credentials stored as GitHub Secret in repo)
       - name: Azure Login
         uses: azure/login@v1
