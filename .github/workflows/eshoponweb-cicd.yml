@@ -19,7 +19,7 @@ jobs:
     steps:
       # Checkout the repository
       - uses: actions/checkout@v2
-notification demo
+      
       # Prepare runner for desired .net version SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
@@ -32,8 +32,8 @@ notification demo
         run: dotnet build ./src/Web/Web.csproj --configuration Release
 
       # Publish the .net project
-      - name: dotnet publish
-        run: dotnet publish ./src/Web/Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      - name: dotnet publishing
+        run: dotnet publish ./src/Web/Web.csproj -c R
 
       # Upload the published website code artifacts
       - name: Upload artifact for deployment job
