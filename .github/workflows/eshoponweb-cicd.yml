@@ -14,7 +14,7 @@ env:
 
 jobs:
   #Build, test and publish .net web project in repository
-  build:
+  buildandtest:
     runs-on: ubuntu-latest
     steps:
     #checkout the repository
@@ -25,22 +25,10 @@ jobs:
       with:
         dotnet-version: '6.0.x'
         include-prerelease: true
-    #Build the .net project
+    #Build/Test/Publish the .net project
     - name: Build with dotnet
       run: dotnet build ./eShopOnWeb.sln --configuration Release
-        
-    # upload the bicep template as artifacts for next job
-    - name: Upload artifact for deployment job
-      uses: actions/upload-artifact@v3
-      with:
-        name: bicep-template
-        path: ${{ env.TEMPLATE-FILE }}
-  
-  test:
-    runs-on: ubuntu-latest
-    steps:
-	#Test/Publish the .net project
-	- name: Test with dotnet
+    - name: Test with dotnet
       run: dotnet test ./eShopOnWeb.sln --configuration Release
     - name: dotnet publish
       run: dotnet publish ./src/Web/Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
@@ -50,7 +38,14 @@ jobs:
       with:
         name: .net-app
         path: ${{env.DOTNET_ROOT}}/myapp
-	
+        
+    # upload the bicep template as artifacts for next job
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v3
+      with:
+        name: bicep-template
+        path: ${{ env.TEMPLATE-FILE }}
+        
   # Use Bicep to deploy infrastructure + Publish webapp 
   deploy:
     runs-on: ubuntu-latest
@@ -95,4 +90,3 @@ jobs:
       with:
         app-name: ${{ env.WEBAPP-NAME  }}
         package: .net-app
-   
