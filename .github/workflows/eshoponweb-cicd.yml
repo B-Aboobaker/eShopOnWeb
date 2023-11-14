@@ -15,7 +15,7 @@ env:
 jobs:
   # Build .net web project in repository
   build:
-    runs-on: windows-latest
+    runs-on: windows-latestdemo
     steps:
       # Checkout the repository
       - uses: actions/checkout@v2
