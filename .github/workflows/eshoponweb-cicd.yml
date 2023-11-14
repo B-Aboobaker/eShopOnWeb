@@ -9,7 +9,7 @@ env:
   LOCATION: eastus
   TEMPLATE-FILE: .azure/bicep/webapp.bicep
   SUBSCRIPTION-ID: b4606ffd-a21a-4c82-9a9e-1982b3bd56a5
-  WEBAPP-NAME: az400-webapp-DOESummativeAssesment
+  WEBAPP-NAME: az400-webapp-DOESA
 
 
 jobs:
