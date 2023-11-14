@@ -15,11 +15,11 @@ env:
 jobs:
   # Build .net web project in repository
   build:
-    runs-on: windows-latestdemo
+    runs-on: windows-latest
     steps:
       # Checkout the repository
       - uses: actions/checkout@v2
-
+notification demo
       # Prepare runner for desired .net version SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
