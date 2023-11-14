@@ -19,24 +19,39 @@ jobs:
     steps:
       # Checkout the repository
       - uses: actions/checkout@v2
+
       # Prepare runner for desired .net version SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
+
       # Build the .net project
       - name: Build with dotnet
         run: dotnet build ./src/Web/Web.csproj --configuration Release
+
       # Publish the .net project
       - name: dotnet publish
         run: dotnet publish ./src/Web/Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+      # List contents of the publish directory (for debugging)
+      - name: List publish directory
+        run: ls ${{env.DOTNET_ROOT}}/myapp
+
       # Upload the published website code artifacts
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+
+      # Upload the Bicep template artifacts
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: bicep-template
+          path: .azure/bicep
 
   # Test .net web project in repository
   test:
@@ -45,12 +60,14 @@ jobs:
     steps:
       # Checkout the repository
       - uses: actions/checkout@v2
+
       # Prepare runner for desired .net version SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
+
       # Test the .net project
       - name: Test with dotnet
         run: dotnet test ./eShopOnWeb.sln --configuration Release
@@ -68,15 +85,26 @@ jobs:
         with:
           name: .net-app
           path: .net-app
-      
-      # List artifact contents (optional, for debugging)
-      - name: List artifact contents
-        run: ls
+
+      # Download the Bicep templates from the build job
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-template
+          path: bicep-template
+
+      # List contents of the download directories (for debugging)
+      - name: List .net-app directory
+        run: ls .net-app
+      - name: List bicep-template directory
+        run: ls bicep-template
+
       # Login to your Azure subscription using a service principal (credentials stored as GitHub Secret in repo)
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       # Deploy Azure WebApp using Bicep file
       - name: deploy
         uses: azure/arm-deploy@v1
@@ -86,6 +114,7 @@ jobs:
           template: bicep-template/webapp.bicep
           parameters: 'webAppName=${{ env.WEBAPP-NAME }} location=${{ env.LOCATION }}'
           failOnStdErr: false
+
       # Publish website to Azure App Service (WebApp)
       - name: Publish Website to WebApp
         uses: Azure/webapps-deploy@v2
