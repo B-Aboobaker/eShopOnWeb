@@ -68,12 +68,7 @@ jobs:
         with:
           name: .net-app
           path: .net-app
-      # Download the Bicep templates from the build job
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-template  # Ensure this matches the name used in the build job
-          path: bicep-template
+      
       # List artifact contents (optional, for debugging)
       - name: List artifact contents
         run: ls
