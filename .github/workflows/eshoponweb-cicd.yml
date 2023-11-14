@@ -35,12 +35,6 @@ jobs:
         with:
           name: bicep-template
           path: ${{ env.TEMPLATE-FILE }}
-      # upload the published website code artifacts
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-         name: .net-app
-         path: ${{env.DOTNET_ROOT}}/myapp
 
   # Test .net web project
   test:
@@ -99,4 +93,3 @@ jobs:
         uses: Azure/webapps-deploy@v2
         with:
           app-name: ${{ env.WEBAPP-NAME }}
-          package: .net-app
