@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./src/Web/bin/Release/net6.0/publish
 
   # Test .net web project in repository
   test:
