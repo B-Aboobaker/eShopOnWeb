@@ -1,6 +1,6 @@
 name: eShopOnWeb CI/CD
 
-# Triggers (uncomment line below to use it)
+# Trigger
 on:
   - push
   - workflow_dispatch
@@ -11,7 +11,7 @@ env:
   LOCATION: eastus
   TEMPLATE-FILE: .azure/bicep/webapp.bicep
   SUBSCRIPTION-ID: b4606ffd-a21a-4c82-9a9e-1982b3bd56a5
-  WEBAPP-NAME: az400-webapp-DOESA
+  WEBAPP-NAME: az400-webapp-DOESA20230228
 
 jobs:
   # Build .net web project in repository
@@ -29,7 +29,6 @@ jobs:
       # Build the .net project
       - name: Build with dotnet
         run: dotnet build ./eShopOnWeb.sln --configuration Release
-        
       # upload the bicep template as artifacts for next job
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
