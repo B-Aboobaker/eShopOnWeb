@@ -1,26 +1,24 @@
-name: eShopOnWeb CI/CD
+name: eShopOnWeb Build, Test, and Deploy
 
-# Trigger
-on:
-  - push
-  - workflow_dispatch
+# Triggers (uncomment line below to use it)
+on: [push, workflow_dispatch]
 
-# Environment variables
+# Environment variables https://docs.github.com/en/actions/learn-github-actions/environment-variables
 env:
   RESOURCE-GROUP: rg-az400-eshoponweb-DOESA
   LOCATION: eastus
   TEMPLATE-FILE: .azure/bicep/webapp.bicep
   SUBSCRIPTION-ID: b4606ffd-a21a-4c82-9a9e-1982b3bd56a5
-  WEBAPP-NAME: az400-webapp-DOESA20230228
+  WEBAPP-NAME: az400-webapp-DOESA
 
 jobs:
   # Build .net web project in repository
   build:
     runs-on: windows-latest
     steps:
-      # checkout the repository
+      # Checkout the repository
       - uses: actions/checkout@v2
-      # prepare runner for desired .net version SDK
+      # Prepare runner for desired .net version SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
@@ -29,21 +27,21 @@ jobs:
       # Build the .net project
       - name: Build with dotnet
         run: dotnet build ./eShopOnWeb.sln --configuration Release
-      # upload the bicep template as artifacts for next job
+      # Upload the published website code artifacts
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
-          name: bicep-template
-          path: ${{ env.TEMPLATE-FILE }}
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
 
-  # Test .net web project
+  # Test .net web project in repository
   test:
     runs-on: windows-latest
     needs: build
     steps:
-      # checkout the repository
+      # Checkout the repository
       - uses: actions/checkout@v2
-      # prepare runner for desired .net version SDK
+      # Prepare runner for desired .net version SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
@@ -56,25 +54,29 @@ jobs:
   # Use Bicep to deploy infrastructure + Publish webapp
   deploy:
     runs-on: windows-latest
-    needs:
-      - build
-      - test
+    needs: [build, test]
     environment:
       name: 'Development'
     steps:
+      # Download the publish files created in the build job
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: .net-app
+          path: .net-app
       # Download the bicep templates from the build job
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
           name: bicep-template
           path: bicep-template
-      # Login in your Azure subscription using a service principal (credentials stored as GitHub Secret in repo)
+      # Login to your Azure subscription using a service principal (credentials stored as GitHub Secret in repo)
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       # Deploy Azure WebApp using Bicep file
-      - name: Deploy
+      - name: deploy
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ env.SUBSCRIPTION-ID }}
@@ -87,3 +89,4 @@ jobs:
         uses: Azure/webapps-deploy@v2
         with:
           app-name: ${{ env.WEBAPP-NAME }}
+          package: .net-app
