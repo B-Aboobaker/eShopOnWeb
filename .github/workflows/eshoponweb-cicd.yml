@@ -1,9 +1,9 @@
 name: eShopOnWeb Build, Test, and Deploy
 
-# Triggers (uncomment line below to use it)
+# Trigger
 on: [push, workflow_dispatch]
 
-# Environment variables https://docs.github.com/en/actions/learn-github-actions/environment-variables
+# Environment variables
 env:
   RESOURCE-GROUP: rg-az400-eshoponweb-DOESA
   LOCATION: eastus
@@ -34,10 +34,6 @@ jobs:
       # Publish the .net project
       - name: dotnet publish
         run: dotnet publish ./src/Web/Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      # List contents of the publish directory (for debugging)
-      - name: List publish directory
-        run: ls ${{env.DOTNET_ROOT}}/myapp
 
       # Upload the published website code artifacts
       - name: Upload artifact for deployment job
@@ -93,13 +89,7 @@ jobs:
           name: bicep-template
           path: bicep-template
 
-      # List contents of the download directories (for debugging)
-      - name: List .net-app directory
-        run: ls .net-app
-      - name: List bicep-template directory
-        run: ls bicep-template
-
-      # Login to your Azure subscription using a service principal (credentials stored as GitHub Secret in repo)
+      # Login to Azure subscription using a service principal (credentials stored as GitHub Secret in repo)
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -121,3 +111,15 @@ jobs:
         with:
           app-name: ${{ env.WEBAPP-NAME }}
           package: .net-app
+
+  notify:
+    runs-on: windows-latest
+    needs: [build, test, deploy]
+    if: failure()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Send GitHub Actions Notification
+        run: |
+          echo "Build or deployment failed! Check the GitHub Actions workflow for details."
