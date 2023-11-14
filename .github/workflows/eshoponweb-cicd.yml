@@ -49,6 +49,12 @@ jobs:
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
+      # upload the published website code artifacts
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+         name: .net-app
+         path: ${{env.DOTNET_ROOT}}/myapp
       # Test the .net project
       - name: Test with dotnet
         run: dotnet test ./eShopOnWeb.sln --configuration Release
